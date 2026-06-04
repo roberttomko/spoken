@@ -52,6 +52,39 @@ Auth is the `x-api-key` header. Responses include `X-Credits-Remaining` and `X-C
 - [`examples/rag_pipeline.py`](./examples/rag_pipeline.py) — chunk a transcript for a vector store / RAG
 - [`examples/quickstart.sh`](./examples/quickstart.sh) — search → transcript in two curl calls
 
+## Use as an MCP server
+
+This repo includes **`spoken-mcp`**, a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Spoken to MCP-compatible agents (Claude Desktop, Cursor, Cline, …). It provides three tools:
+
+| Tool | Description |
+| --- | --- |
+| `search_podcasts` | Find episodes by text or a pasted Spotify/YouTube URL |
+| `get_transcript` | Fetch an episode's transcript as Markdown with real speaker names |
+| `get_balance` | Check remaining credits |
+
+Add it to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "spoken": {
+      "command": "npx",
+      "args": ["-y", "spoken-mcp"],
+      "env": { "SPOKEN_API_KEY": "pt_your_key" }
+    }
+  }
+}
+```
+
+`SPOKEN_API_KEY` defaults to `pt_demo` (search works fully; transcripts limited to the demo episode). Get a real key at [spoken.md](https://spoken.md).
+
+Run from source instead:
+
+```sh
+npm install && npm run build
+SPOKEN_API_KEY=pt_your_key node dist/index.js
+```
+
 ## Use with AI agents
 
 Spoken is designed to be called by agents. Point your agent at the [Agent Skill](./SKILL.md) (also served at `https://spoken.md/.well-known/skills/spoken-md/SKILL.md`), or hand it [`agents.md`](https://spoken.md/agents.md). The [OpenAPI spec](https://spoken.md/.well-known/openapi.json) makes it easy to wrap as a tool for any function-calling or MCP-compatible client (Claude, GPT, Cursor).
