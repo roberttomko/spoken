@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.roberttomko/spoken",
+  "title": "Spoken",
+  "description": "Podcast transcripts as clean Markdown with real speaker names — via the Spoken API.",
+  "version": "0.1.0",
+  "websiteUrl": "https://spoken.md",
+  "repository": {
+    "url": "https://github.com/roberttomko/spoken",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "spoken-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SPOKEN_API_KEY",
+          "description": "API key from spoken.md (starts with pt_). Defaults to pt_demo (search works fully; transcripts limited to the demo episode).",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
