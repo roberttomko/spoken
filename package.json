@@ -1,7 +1,7 @@
 {
   "name": "spoken-mcp",
-  "version": "0.1.1",
-  "mcpName": "io.github.roberttomko/spoken",
+  "version": "0.1.2",
+  "mcpName": "io.github.spokenmd/spoken",
   "description": "MCP server for Spoken — fetch podcast transcripts as clean Markdown with real speaker names. Built for AI agents.",
   "type": "module",
   "bin": {
@@ -27,7 +27,7 @@
   "homepage": "https://spoken.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/roberttomko/spoken.git"
+    "url": "git+https://github.com/spokenmd/spoken.git"
   },
   "license": "MIT",
   "engines": {
