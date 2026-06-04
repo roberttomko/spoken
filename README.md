@@ -1,0 +1,72 @@
+# Spoken — podcast transcripts as clean Markdown, built for AI agents
+
+[Spoken](https://spoken.md) is a transcript API that turns any published podcast into clean Markdown with **real speaker names** — not "Speaker 1." One API call returns named, timestamped text, ready for LLMs, RAG pipelines, summarizers, and search.
+
+It's a transcript *retrieval* API, not a speech-to-text service: it works on already-published podcasts, so you skip uploading audio, running diarization, and mapping anonymous speaker labels by hand. For published shows that's typically **5–10× cheaper** than running the audio through a transcription service.
+
+- 🎙️ **Real speaker names**, resolved automatically
+- 📄 **Clean Markdown** with timestamps, tuned for LLM context windows and RAG chunking
+- 🔎 **Search** by text query or paste a Spotify/YouTube URL
+- 💳 **Pay-per-use credits** — no subscription, failed calls never charged, repeat fetches free
+- 🤖 **Agent-native** — ships with an [Agent Skill](./SKILL.md), [`agents.md`](https://spoken.md/agents.md), [`llms.txt`](https://spoken.md/llms.txt), and an [OpenAPI spec](https://spoken.md/.well-known/openapi.json)
+
+Get a key at **[spoken.md](https://spoken.md)** — or try it free with the demo key `pt_demo` (search works fully; transcripts limited to the demo episode).
+
+## Quickstart
+
+```sh
+# 1. Find an episode (by text, or paste a Spotify/YouTube URL)
+curl -s 'https://spoken.md/search?q=huberman+sleep' \
+  -H 'x-api-key: pt_demo'
+
+# 2. Fetch the transcript as Markdown
+curl -s 'https://spoken.md/transcripts/1000651996090' \
+  -H 'x-api-key: pt_demo'
+```
+
+The transcript comes back as Markdown with named speakers and timestamps:
+
+```md
+**John Smith** (0:00)
+Welcome to the show. Today we're talking about...
+
+**Jane Doe** (0:15)
+Thanks for having me.
+```
+
+## Endpoints
+
+| Method & path | What it does | Credits |
+| --- | --- | --- |
+| `GET /search?q={query or URL}` | Find episodes; returns `id`, `title`, `podcast`, `date` | 0 |
+| `GET /transcripts/{id}` | Return the Markdown transcript | 1 on first fetch, 0 on repeat |
+| `GET /balance` | Current credit balance + usage history | 0 |
+| `POST /buy` | New-key checkout (Stripe) | — |
+| `POST /top-up?key={key}` | Returning-customer top-up (Stripe) | — |
+
+Auth is the `x-api-key` header. Responses include `X-Credits-Remaining` and `X-Credits-Charged`. See [`agents.md`](https://spoken.md/agents.md) for the full error table and response shapes.
+
+## Examples
+
+- [`examples/podcast_summarizer.py`](./examples/podcast_summarizer.py) — fetch a transcript and summarize it
+- [`examples/rag_pipeline.py`](./examples/rag_pipeline.py) — chunk a transcript for a vector store / RAG
+- [`examples/quickstart.sh`](./examples/quickstart.sh) — search → transcript in two curl calls
+
+## Use with AI agents
+
+Spoken is designed to be called by agents. Point your agent at the [Agent Skill](./SKILL.md) (also served at `https://spoken.md/.well-known/skills/spoken-md/SKILL.md`), or hand it [`agents.md`](https://spoken.md/agents.md). The [OpenAPI spec](https://spoken.md/.well-known/openapi.json) makes it easy to wrap as a tool for any function-calling or MCP-compatible client (Claude, GPT, Cursor).
+
+## Pricing
+
+Pay-per-use credits, no subscription. New keys: 100 for $15, 500 for $50, 2,000 for $160. Machine-readable at [spoken.md/pricing.md](https://spoken.md/pricing.md).
+
+## Links
+
+- Website & docs: **https://spoken.md**
+- Agent instructions: https://spoken.md/agents.md
+- OpenAPI spec: https://spoken.md/.well-known/openapi.json
+- LLM-friendly overview: https://spoken.md/llms.txt
+
+---
+
+Spoken is built and maintained at [spoken.md](https://spoken.md).
