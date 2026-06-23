@@ -38,7 +38,8 @@ Thanks for having me.
 
 | Method & path | What it does | Credits |
 | --- | --- | --- |
-| `GET /search?q={query or URL}` | Find episodes; returns `id`, `title`, `podcast`, `date` | 0 |
+| `GET /search?q={query or URL}` | Find episodes; returns `id`, `title`, `podcast`, `podcastId`, `date` | 0 |
+| `GET /podcasts/{podcastId}/episodes` | List a show's full back catalog; returns every episode's `id`, `title`, `date` | 0 |
 | `GET /transcripts/{id}` | Return the Markdown transcript | 1 on first fetch, 0 on repeat |
 | `GET /balance` | Current credit balance + usage history | 0 |
 | `POST /buy` | New-key checkout (Stripe) | — |
