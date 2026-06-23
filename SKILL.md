@@ -32,3 +32,11 @@ Search for podcast episodes and fetch transcripts as clean markdown with speaker
    - **502**: Upstream error - suggest retrying in a moment
 
 4. If the response includes `X-Credits-Remaining` header, mention how many credits remain. Note: `X-Credits-Charged: 0` means this episode was already fetched before (repeat fetches are free).
+
+## Transcribing a whole show
+
+To transcribe a podcast's entire back-catalog (e.g. "get me every episode of X"):
+
+1. Get the show's `podcastId`. Every `/search` result includes one.
+2. List every episode: `GET https://spoken.md/podcasts/{podcastId}/episodes` with the `x-api-key` header. This is free (metadata only) and returns a JSON `episodes` array, each with an `id`, `title`, and `date`.
+3. Fetch each `id` through `https://spoken.md/transcripts/{id}` as in step 2 above. Each new episode costs 1 credit; repeat fetches are free. Make sure the key has enough credits for the whole show before starting.

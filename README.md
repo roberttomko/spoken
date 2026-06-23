@@ -54,11 +54,12 @@ Auth is the `x-api-key` header. Responses include `X-Credits-Remaining` and `X-C
 
 ## Use as an MCP server
 
-This repo includes **`spoken-mcp`**, a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Spoken to MCP-compatible agents (Claude Desktop, Cursor, Cline, …). It provides three tools:
+This repo includes **`spoken-mcp`**, a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Spoken to MCP-compatible agents (Claude Desktop, Cursor, Cline, …). It provides four tools:
 
 | Tool | Description |
 | --- | --- |
 | `search_podcasts` | Find episodes by text or a pasted Spotify/YouTube URL |
+| `list_episodes` | List a show's entire back-catalog from a `podcast_id` |
 | `get_transcript` | Fetch an episode's transcript as Markdown with real speaker names |
 | `get_balance` | Check remaining credits |
 

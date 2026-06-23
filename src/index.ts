@@ -20,11 +20,25 @@ interface SearchResult {
   id: string;
   title: string;
   podcast: string;
+  podcastId: string;
   date: string;
 }
 
 interface SearchResponse {
   results: SearchResult[];
+}
+
+interface EpisodeRef {
+  id: string;
+  title: string;
+  date: string;
+}
+
+interface EpisodesResponse {
+  podcast: string;
+  podcast_id: string;
+  count: number;
+  episodes: EpisodeRef[];
 }
 
 interface ApiError {
@@ -68,14 +82,14 @@ async function describeError(res: Response): Promise<string> {
   return `${res.status} ${res.statusText}. ${hints[res.status] ?? ""} ${detail}`.trim();
 }
 
-const server = new McpServer({ name: "spoken", version: "0.1.0" });
+const server = new McpServer({ name: "spoken", version: "0.2.0" });
 
 server.registerTool(
   "search_podcasts",
   {
     title: "Search podcasts",
     description:
-      "Search published podcast episodes by text query, or paste an episode URL (Spotify, YouTube, etc.). Returns matching episodes with their id, title, podcast, and date. Use the id with get_transcript. Does not consume credits.",
+      "Search published podcast episodes by text query, or paste an episode URL (Spotify, YouTube, etc.). Returns matching episodes with their id, title, podcast, podcast_id, and date. Use the id with get_transcript, or the podcast_id with list_episodes to get the show's whole back-catalog. Does not consume credits.",
     inputSchema: {
       query: z
         .string()
@@ -89,7 +103,7 @@ server.registerTool(
     const { results } = (await res.json()) as SearchResponse;
     if (results.length === 0) return text(`No episodes found for "${query}".`);
     const lines = results.map(
-      (r) => `- ${r.title} — ${r.podcast} (${r.date}) · id: ${r.id}`,
+      (r) => `- ${r.title} — ${r.podcast} (${r.date}) · id: ${r.id} · podcast_id: ${r.podcastId}`,
     );
     return text(`Found ${results.length} episode(s):\n${lines.join("\n")}`);
   },
@@ -119,6 +133,37 @@ server.registerTool(
         ? `\n\n---\nCredits charged: ${charged ?? "?"} · remaining: ${remaining}`
         : "";
     return text(`${transcript}${footer}`);
+  },
+);
+
+server.registerTool(
+  "list_episodes",
+  {
+    title: "List a show's episodes",
+    description:
+      "List a podcast's entire back-catalog (every episode, newest first). Pass a podcast_id from a search_podcasts result. Returns each episode's id, title, and date — fetch any with get_transcript. Use this to transcribe a whole show. Does not consume credits itself; transcribing the returned episodes costs 1 credit each (repeat fetches are free), so make sure the key has enough credits before looping.",
+    inputSchema: {
+      podcast_id: z
+        .string()
+        .min(1)
+        .describe("Show id (the podcast_id field from a search_podcasts result)."),
+    },
+  },
+  async ({ podcast_id }): Promise<TextResult> => {
+    const res = await spokenFetch(
+      `/podcasts/${encodeURIComponent(podcast_id)}/episodes`,
+    );
+    if (!res.ok) return text(await describeError(res), true);
+    const data = (await res.json()) as EpisodesResponse;
+    if (data.count === 0) {
+      return text(`No episodes found for podcast id ${podcast_id}.`);
+    }
+    const lines = data.episodes.map(
+      (e) => `- ${e.title} (${e.date}) · id: ${e.id}`,
+    );
+    return text(
+      `${data.podcast} — ${data.count} episode(s) (transcribing all costs up to ${data.count} credits):\n${lines.join("\n")}`,
+    );
   },
 );
 
