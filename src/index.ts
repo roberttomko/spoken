@@ -13,6 +13,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
+const USING_DEMO_KEY: boolean = !process.env.SPOKEN_API_KEY;
 const API_KEY: string = process.env.SPOKEN_API_KEY ?? "pt_demo";
 const BASE_URL: string = (process.env.SPOKEN_BASE_URL ?? "https://spoken.md").replace(/\/$/, "");
 
@@ -75,7 +76,15 @@ async function describeError(res: Response): Promise<string> {
   }
   const hints: Record<number, string> = {
     401: "Missing or invalid API key. Set SPOKEN_API_KEY (get one at https://spoken.md).",
-    402: "No credits remaining. Top up at https://spoken.md.",
+    // A 402 means two different things, and the demo case is by far the more common
+    // one: no SPOKEN_API_KEY was set, so we fell back to pt_demo, which searches
+    // fully but only fetches the demo episode. Telling that user to "top up" sends
+    // them to buy credits for a key they do not have.
+    402: USING_DEMO_KEY
+      ? "No SPOKEN_API_KEY is set, so this server is using the free pt_demo key - " +
+        "it can search everything but only fetch the demo episode. Get a key at " +
+        "https://spoken.md and set SPOKEN_API_KEY to fetch this episode."
+      : "No credits remaining. Top up at https://spoken.md.",
     404: "Episode not found or has no transcript.",
     502: "Upstream error — safe to retry in a moment.",
   };
@@ -184,6 +193,14 @@ server.registerTool(
 );
 
 async function main(): Promise<void> {
+  // stderr only - stdout is the MCP protocol channel on a stdio transport.
+  if (USING_DEMO_KEY) {
+    console.error(
+      "spoken-mcp: SPOKEN_API_KEY is not set, falling back to the free pt_demo key. " +
+        "Search works fully, but transcript fetches will only succeed for the demo " +
+        "episode. Get a key at https://spoken.md and set SPOKEN_API_KEY.",
+    );
+  }
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
