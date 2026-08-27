@@ -52,6 +52,7 @@ Auth is the `x-api-key` header. Responses include `X-Credits-Remaining` and `X-C
 - [`examples/podcast_summarizer.py`](./examples/podcast_summarizer.py) — fetch a transcript and summarize it
 - [`examples/rag_pipeline.py`](./examples/rag_pipeline.py) — chunk a transcript for a vector store / RAG
 - [`examples/quickstart.sh`](./examples/quickstart.sh) — search → transcript in two curl calls
+- [`examples/archive-show.sh`](./examples/archive-show.sh) — archive a show's entire back catalogue, one file per episode
 
 ## Use as an MCP server
 
